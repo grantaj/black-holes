@@ -96,11 +96,11 @@ def update(frame):
             r2 = np.sqrt((X[i, j] - pos2[0])**2 + (Y[i, j] - pos2[1])**2)
             r3 = np.sqrt((X[i, j] - pos3[0])**2 + (Y[i, j] - pos3[1])**2)
             
-            # Simplified wave amplitude model
+            # Simplified wave amplitude model with exponential scaling
             wave_amplitude[i, j] = (acc1 / (r1 + 1e-10) + acc2 / (r2 + 1e-10) + acc3 / (r3 + 1e-10))
     
-    # Apply logarithmic scaling to wave amplitude for better visibility
-    wave_amplitude = np.log1p(wave_amplitude)
+    # Apply exponential scaling to wave amplitude for better visibility
+    wave_amplitude = np.exp(wave_amplitude * 1e2) - 1
     
     ax.imshow(wave_amplitude, extent=[min_x, max_x, min_y, max_y], origin='lower', cmap='inferno')
     
@@ -129,4 +129,5 @@ ani.save("gravitational_waves_black_holes.mp4", writer=writer)
 
 # Display the plot (if you want to see it in a window)
 plt.show()
+
 
