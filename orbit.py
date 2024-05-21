@@ -99,7 +99,10 @@ def update(frame):
             # Simplified wave amplitude model
             wave_amplitude[i, j] = (acc1 / (r1 + 1e-10) + acc2 / (r2 + 1e-10) + acc3 / (r3 + 1e-10))
     
-    ax.imshow(wave_amplitude, extent=[min_x, max_x, min_y, max_y], origin='lower', cmap='viridis')
+    # Apply logarithmic scaling to wave amplitude for better visibility
+    wave_amplitude = np.log1p(wave_amplitude)
+    
+    ax.imshow(wave_amplitude, extent=[min_x, max_x, min_y, max_y], origin='lower', cmap='inferno')
     
     # Plot the black holes
     ax.plot(x1[:frame], y1[:frame], 'w-', label='Black Hole 1')
