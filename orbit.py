@@ -43,40 +43,74 @@ x1, y1, x2, y2, x3, y3 = solution.y[0], solution.y[1], solution.y[2], solution.y
 
 # Create the figure and axis
 fig, ax = plt.subplots(figsize=(10, 10))
-ax.set_xlim(min(x1.min(), x2.min(), x3.min()), max(x1.max(), x2.max(), x3.max()))
-ax.set_ylim(min(y1.min(), y2.min(), y3.min()), max(y1.max(), y2.max(), y3.max()))
-ax.set_xlabel('x (m)')
-ax.set_ylabel('y (m)')
-ax.set_title('Orbital Dynamics of Three Black Holes')
-ax.grid()
+x_range = np.linspace(-2e11, 2e11, 500)
+y_range = np.linspace(-2e11, 2e11, 500)
+X, Y = np.meshgrid(x_range, y_range)
 
-# Initialize the lines for the three black holes
-line1, = ax.plot([], [], label='Black Hole 1')
-line2, = ax.plot([], [], label='Black Hole 2')
-line3, = ax.plot([], [], label='Black Hole 3')
-ax.legend()
+# Initialize the color plot
+wave_amplitude = np.zeros_like(X)
 
 # Function to initialize the animation
 def init():
-    line1.set_data([], [])
-    line2.set_data([], [])
-    line3.set_data([], [])
-    return line1, line2, line3
+    ax.clear()
+    ax.set_xlim(-2e11, 2e11)
+    ax.set_ylim(-2e11, 2e11)
+    ax.set_xlabel('x (m)')
+    ax.set_ylabel('y (m)')
+    ax.set_title('Gravitational Waves from Three Black Holes')
+    return ax
 
 # Function to update the animation
 def update(frame):
-    line1.set_data(x1[:frame], y1[:frame])
-    line2.set_data(x2[:frame], y2[:frame])
-    line3.set_data(x3[:frame], y3[:frame])
-    return line1, line2, line3
+    ax.clear()
+    
+    # Current positions of the black holes
+    pos1 = (x1[frame], y1[frame])
+    pos2 = (x2[frame], y2[frame])
+    pos3 = (x3[frame], y3[frame])
+    
+    # Accelerations at current positions
+    acc1 = np.sqrt(solution.y[6, frame]**2 + solution.y[7, frame]**2)
+    acc2 = np.sqrt(solution.y[8, frame]**2 + solution.y[9, frame]**2)
+    acc3 = np.sqrt(solution.y[10, frame]**2 + solution.y[11, frame]**2)
+    
+    # Update the wave amplitude
+    for i in range(X.shape[0]):
+        for j in range(X.shape[1]):
+            r1 = np.sqrt((X[i, j] - pos1[0])**2 + (Y[i, j] - pos1[1])**2)
+            r2 = np.sqrt((X[i, j] - pos2[0])**2 + (Y[i, j] - pos2[1])**2)
+            r3 = np.sqrt((X[i, j] - pos3[0])**2 + (Y[i, j] - pos3[1])**2)
+            
+            # Simplified wave amplitude model
+            wave_amplitude[i, j] = (acc1 / (r1 + 1e-10) + acc2 / (r2 + 1e-10) + acc3 / (r3 + 1e-10))
+    
+    ax.imshow(wave_amplitude, extent=[-2e11, 2e11, -2e11, 2e11], origin='lower', cmap='viridis')
+    
+    # Plot the black holes
+    ax.plot(x1[:frame], y1[:frame], 'w-', label='Black Hole 1')
+    ax.plot(x2[:frame], y2[:frame], 'r-', label='Black Hole 2')
+    ax.plot(x3[:frame], y3[:frame], 'b-', label='Black Hole 3')
+    ax.plot(pos1[0], pos1[1], 'wo')
+    ax.plot(pos2[0], pos2[1], 'ro')
+    ax.plot(pos3[0], pos3[1], 'bo')
+    
+    ax.legend()
+    ax.set_xlabel('x (m)')
+    ax.set_ylabel('y (m)')
+    ax.set_title('Gravitational Waves from Three Black Holes')
+    ax.grid()
+    
+    return ax
 
 # Create the animation
-ani = FuncAnimation(fig, update, frames=len(t_eval), init_func=init, blit=True)
+ani = FuncAnimation(fig, update, frames=len(t_eval), init_func=init, blit=False)
 
 # Save the animation to a file
 writer = FFMpegWriter(fps=30, metadata=dict(artist='Me'), bitrate=1800)
-ani.save("three_black_holes_orbits.mp4", writer=writer)
+ani.save("gravitational_waves_black_holes.mp4", writer=writer)
 
 # Display the plot (if you want to see it in a window)
 plt.show()
+
+
 
