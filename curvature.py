@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 # Constants
 G = 6.67430e-11  # Gravitational constant, m^3 kg^-1 s^-2
@@ -20,18 +21,21 @@ R = np.sqrt(X**2 + Y**2)
 Z = np.log10(1 - Rs / R)
 Z[R <= Rs] = np.nan  # Mask out the region inside the Schwarzschild radius
 
-# Plot the curvature
-fig, ax = plt.subplots(figsize=(10, 10))
-c = ax.contourf(X, Y, Z, levels=50, cmap='viridis')
+# Create the 3D plot
+fig = plt.figure(figsize=(12, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# Plot the wireframe
+ax.plot_wireframe(X, Y, Z, color='b', rstride=10, cstride=10)
+
+# Set labels and title
 ax.set_xlabel('x (m)')
 ax.set_ylabel('y (m)')
+ax.set_zlabel('log(1 - Rs/R)')
 ax.set_title('Curvature of Spacetime around a Black Hole')
-fig.colorbar(c, label='log(1 - Rs/R)')
-ax.plot(0, 0, 'ro', label='Black Hole')
-ax.legend()
 
 # Save the plot to a file
-plt.savefig("spacetime_curvature.png")
+plt.savefig("spacetime_curvature_3d.png")
 
 # Display the plot
 plt.show()
