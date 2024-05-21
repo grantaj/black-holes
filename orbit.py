@@ -33,7 +33,7 @@ def equations(t, y):
 
 # Time span for the simulation
 t_span = (0, 1e8)  # seconds
-t_eval = np.linspace(t_span[0], t_span[1], 1000)
+t_eval = np.linspace(t_span[0], t_span[1], 500)  # Reduced the number of frames
 
 # Solve the differential equations
 solution = solve_ivp(equations, t_span, initial_conditions, t_eval=t_eval, rtol=1e-8)
@@ -42,9 +42,9 @@ solution = solve_ivp(equations, t_span, initial_conditions, t_eval=t_eval, rtol=
 x1, y1, x2, y2, x3, y3 = solution.y[0], solution.y[1], solution.y[2], solution.y[3], solution.y[4], solution.y[5]
 
 # Create the figure and axis
-fig, ax = plt.subplots(figsize=(10, 10))
-x_range = np.linspace(-2e11, 2e11, 500)
-y_range = np.linspace(-2e11, 2e11, 500)
+fig, ax = plt.subplots(figsize=(6, 6))  # Reduced figure size
+x_range = np.linspace(-2e11, 2e11, 200)  # Reduced grid resolution
+y_range = np.linspace(-2e11, 2e11, 200)
 X, Y = np.meshgrid(x_range, y_range)
 
 # Initialize the color plot
@@ -106,11 +106,8 @@ def update(frame):
 ani = FuncAnimation(fig, update, frames=len(t_eval), init_func=init, blit=False)
 
 # Save the animation to a file
-writer = FFMpegWriter(fps=30, metadata=dict(artist='Me'), bitrate=1800)
+writer = FFMpegWriter(fps=15, metadata=dict(artist='Me'), bitrate=1800)  # Reduced fps
 ani.save("gravitational_waves_black_holes.mp4", writer=writer)
 
 # Display the plot (if you want to see it in a window)
 plt.show()
-
-
-
