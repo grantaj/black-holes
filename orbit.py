@@ -69,12 +69,27 @@ def update(frame):
     pos2 = (x2[frame], y2[frame])
     pos3 = (x3[frame], y3[frame])
     
+    # Define dynamic limits based on current positions of black holes
+    min_x = min(pos1[0], pos2[0], pos3[0]) - 1e11
+    max_x = max(pos1[0], pos2[0], pos3[0]) + 1e11
+    min_y = min(pos1[1], pos2[1], pos3[1]) - 1e11
+    max_y = max(pos1[1], pos2[1], pos3[1]) + 1e11
+    
+    ax.set_xlim(min_x, max_x)
+    ax.set_ylim(min_y, max_y)
+    
+    # Adjust grid resolution dynamically
+    x_range = np.linspace(min_x, max_x, 200)
+    y_range = np.linspace(min_y, max_y, 200)
+    X, Y = np.meshgrid(x_range, y_range)
+    
     # Accelerations at current positions
     acc1 = np.sqrt(solution.y[6, frame]**2 + solution.y[7, frame]**2)
     acc2 = np.sqrt(solution.y[8, frame]**2 + solution.y[9, frame]**2)
     acc3 = np.sqrt(solution.y[10, frame]**2 + solution.y[11, frame]**2)
     
     # Update the wave amplitude
+    wave_amplitude = np.zeros_like(X)
     for i in range(X.shape[0]):
         for j in range(X.shape[1]):
             r1 = np.sqrt((X[i, j] - pos1[0])**2 + (Y[i, j] - pos1[1])**2)
@@ -84,7 +99,7 @@ def update(frame):
             # Simplified wave amplitude model
             wave_amplitude[i, j] = (acc1 / (r1 + 1e-10) + acc2 / (r2 + 1e-10) + acc3 / (r3 + 1e-10))
     
-    ax.imshow(wave_amplitude, extent=[-2e11, 2e11, -2e11, 2e11], origin='lower', cmap='viridis')
+    ax.imshow(wave_amplitude, extent=[min_x, max_x, min_y, max_y], origin='lower', cmap='viridis')
     
     # Plot the black holes
     ax.plot(x1[:frame], y1[:frame], 'w-', label='Black Hole 1')
@@ -111,3 +126,4 @@ ani.save("gravitational_waves_black_holes.mp4", writer=writer)
 
 # Display the plot (if you want to see it in a window)
 plt.show()
+
