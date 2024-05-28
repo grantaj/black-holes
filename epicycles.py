@@ -3,13 +3,20 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 # Parameters
-num_epicycles = 10  # Number of epicycles
-time_steps = 1000  # Number of time steps for the animation
+num_epicycles = 50  # Number of epicycles
+time_steps = 2000  # Number of time steps for the animation
 
-# Generate a complex curve (Lissajous curve for example)
+# Generate a more interesting complex curve using filtered noise
+def generate_filtered_noise(length, scale=10):
+    noise = np.cumsum(np.random.randn(length))  # Cumulative sum to create a random walk
+    noise = noise - np.mean(noise)  # Remove DC component
+    noise = noise / np.max(np.abs(noise))  # Normalize
+    noise = np.convolve(noise, np.ones(scale)/scale, mode='same')  # Apply a simple moving average filter
+    return noise
+
 t = np.linspace(0, 2 * np.pi, time_steps)
-x = np.sin(3 * t + np.pi / 2)
-y = np.sin(4 * t)
+x = generate_filtered_noise(time_steps, scale=20)
+y = generate_filtered_noise(time_steps, scale=20)
 
 # Fourier coefficients
 z = x + 1j * y
@@ -28,7 +35,6 @@ def compute_epicycles(t, coeffs, freqs, num_cycles):
     for i in range(num_cycles):
         coeff = coeffs[i]
         freq = freqs[i]
-        prev_x, prev_y = x, y
         x += np.real(coeff) * np.cos(freq * t) - np.imag(coeff) * np.sin(freq * t)
         y += np.real(coeff) * np.sin(freq * t) + np.imag(coeff) * np.cos(freq * t)
         positions.append((x, y))
@@ -70,5 +76,8 @@ ani = FuncAnimation(fig, update, frames=time_steps, init_func=init, blit=True, i
 
 # Display the animation
 plt.show()
+
+
+
 
 
